@@ -6,7 +6,7 @@ It only returns the elements which are either a subform or an atomic field.
 */
 
 
-import {layerOrder,  getLayout, isParentofAtomic } from "./util";
+import {layerOrder,  getLayout, isParentofAtomic, isText } from "./util";
 
 console.log('.........');
 

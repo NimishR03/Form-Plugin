@@ -34,8 +34,14 @@ export function getLayout(node){
   if(xmap.size > 1){
     orientationFlag=1;
   }
-  else orientationFlag=2;
-  if(isParentofAtomic(node))fields.push(createObj(orientationFlag,obtainChildren(node)));
+  else {
+    orientationFlag=2;
+  }
+  if(isParentofAtomic(node)){
+    if(obtainChildren(node).length>1){
+      fields.push(createObj(orientationFlag,obtainChildren(node)));
+    }
+  }
   if(node.children){
     for(const item of node.children){
       if(checkLabel(item)){ // if it is atomic push into the object array
@@ -46,7 +52,8 @@ export function getLayout(node){
         // if it is a parent of atomic push into the object array
         let subLayout = getLayout(item);
         for(const obj of subLayout){ // Carry the objects array through recursion
-          fields.push(obj);
+            fields.push(obj);
+          
         }
       }
     }
@@ -68,12 +75,31 @@ export function checkLabel(node){
   return false;
 }
 
+export function isText(layer){
+  if(isParentofAtomic(layer)||checkLabel(layer)){
+    return false;
+  }
+    if(layer.type === "TEXT"){
+      return true;
+    }
+    else{
+      if(layer.children){
+        let bool = true;
+        for (const subLayer of layer.children) { // Gives the type of object as it runs on Atomic elements only
+          bool = bool && isText(subLayer);
+        }
+        return bool;
+      }
+    }
+  return false;
+}
+
 export function obtainChildren(node){
   let inputType = [] as SceneNode[];
   if(node.children){
     for (const layer of node.children) { // Gives the type of object as it runs on Atomic elements only
-      if(layer.name !== "Label"){
-        inputType.push(layer.name);
+      if(layer.name !== "Label" && !isText(layer)){
+        inputType.push(layer);
       }
     }
   }

@@ -1,44 +1,21 @@
 /*
-In the Code below we have called a function getLayout() which returns a array of a custom object class
-containing the type of the element, its orientation in the form and its children.
-
-It only returns the elements which are either a subform or an atomic field.
+  The getLayout() fucnction returns an object which contains the orientation of the form along with atomic and subform elements.
+  Detailed working of the function is described in util.ts file along with all the test cases.
 */
 
 
-import {layerOrder,  getLayout, isParentofAtomic, isText } from "./util";
+import {getLayout} from "./util";
 
 console.log('.........');
 
-let layerLayout = layerOrder();  // Gives an ordered array of all the layers of the file
+const formNode :any = figma.currentPage.selection.find(node => node.name === "Form");
 
-let formFields = [] as object[];   // Object array to store the element properties.
-for (const node of figma.currentPage.selection) {
-  if (node.name == 'Form') {
-    formFields = getLayout(node);  // obtain the layout of the form
-  }
-}
+let formLayout = getLayout(formNode); // Return an object with the nested layout of the Form
 
-for(const element of formFields){
-  if(element.hasOwnProperty('inputType')){
-    console.log((element as any).inputType);  // print the layout to console for verifiaction
-  }else{
-    console.log(element);
-  }
-}
+
+console.log("Formlayout", formLayout);
 
 figma.closePlugin();  // Close the plugin after execution
 
 
 
-/*
-
-let rowNumber=0;
-for (const item of fields) { 
-  if(item.x === 0){
-    rowNumber++;
-  }
-  console.log(item.name+' is in Row '+rowNumber);
-}
-
-*/

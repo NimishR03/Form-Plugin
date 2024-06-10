@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Code Generator</title>
+  <style>
+    #titleContainer{
+        height: 7vh;
+        display: flex;
+        align-items: center;
+        padding-left: 10px;
+        box-sizing: border-box;
+        font-family: Arial;
+        border-bottom : 1px solid #D3D3D3; 
+    }
+    #jsonContainer {
+      white-space: pre-wrap; 
+      background: white;
+      padding: 10px;
+      border-bottom : 1px solid #D3D3D3; 
+      box-sizing: border-box;
+      font-family: monospace; 
+      max-height: 83vh;
+      overflow: auto; 
+    }
+    body{
+        background: white;
+        color: #272822;
+        padding: 0;
+        margin: 0;
+    }
+    #downloadButton{
+        margin-left: auto;
+        margin-right: auto;
+        background-color: #007AFF;
+        color: white;
+        border-radius: 4px;
+        outline: none;
+        border: none;
+        padding: 7.5px 15px;
+    }
+    #divContainer{
+        width: 100%;
+        display: flex;
+        height: 10vh;
+        justify-content: center;
+        box-sizing: border-box;
+        border-bottom : 1px solid #D3D3D3; 
+        padding: 6px;
+    }
+  </style>
+</head>
+<body>
+    <div id="divContainer"><button id="downloadButton">Download Files</button> </div>
+    <div id="titleContainer"> Form Layout </div>
+    <div id="jsonContainer"></div>
+  <script>
+      parent.postMessage({ pluginMessage: { type: 'uiReady' } }, '*');
+
+      onmessage = (event) => {
+          if (event.data.pluginMessage.type === 'json') {
+              const jsonS = event.data.pluginMessage.jsonString;
+              const formattedJson = JSON.stringify(JSON.parse(jsonS), null, 2);
+              // Display the JSON string
+              const jsonContainer = document.getElementById('jsonContainer');
+              if (jsonContainer) {
+                  jsonContainer.innerText = formattedJson;
+              } else {
+                  console.error('jsonContainer element not found');
+              }
+          }
+      };
+
+    const downloadButton = document.getElementById('downloadButton');
+    downloadButton.addEventListener('click', () => {
+        parent.postMessage({ pluginMessage: { type: 'Download' } }, '*');
+
+        onmessage = (event) => {
+        if (event.data.pluginMessage.type === 'downloadZip') {
+            const base64String = event.data.pluginMessage.base64String;
+            downloadFile('Files.zip', base64String);
+        }
+        };
+
+        function downloadFile(filename, base64) {
+        const linkSource = `data:application/zip;base64,${base64}`;
+        const downloadLink = document.createElement('a');
+        downloadLink.href = linkSource;
+        downloadLink.download = filename;
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+        }
+    });
+  </script>
+</body>
+</html>

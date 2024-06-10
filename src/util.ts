@@ -48,7 +48,7 @@ export function getLayout(node){
     return null;
   }
   if(checkLabel(node)){ // Check for atomic
-    return obtainType(node);
+    return node;
   }
   let fields = [] as (object | string)[]; // Array for output
   let numberOfValid = 0;
@@ -115,15 +115,33 @@ export function isTextLayer(layer){ // Checks if current node is Text
 }
 
 
-
-
-
 export function obtainType(node){ // Provides the type for Atomic nodes
   let inputType ="";
   if(node.children){
     for (const layer of node.children) { // Gives the type of object as it runs on Atomic elements only
       if(layer.name !== "Label"){
         inputType=layer.name;
+      }
+    }
+  }
+  return inputType;
+}
+
+export function obtainName(node){
+  let inputType ="";
+  if(node.children){
+    for (const layer of node.children) { // Gives the type of object as it runs on Atomic elements only
+      if(layer.name === "Label"){
+        if(layer.type !== "TEXT" && layer.children){
+          for (const item  of layer.children) { // Gives the type of object as it runs on Atomic elements only
+            if(item.type === "TEXT"){
+              inputType=item.characters;
+            }
+          }
+        }
+        else{
+          inputType= layer.characters;
+        }
       }
     }
   }
@@ -145,5 +163,21 @@ export function createObj (orientation,children){ // Creates the object with its
       "children" : children,
     }
   }
+}
+
+export function converttoCamelCase(str: string): string {
+  return str
+    .toLowerCase()
+    .replace(/[^a-zA-Z0-9 ]/g, '') // Remove non-alphanumeric characters
+    .replace(/(?:^\w|[A-Z]|\b\w)/g, (word, index) => 
+      index === 0 ? word.toLowerCase() : word.toUpperCase()
+    )
+    .replace(/\s+/g, ''); // Remove spaces
+}
+
+export function convertToUpperSnakeCase(str: string): string {
+  return str
+    .toUpperCase() // Convert the string to uppercase
+    .replace(/\s+/g, '_'); // Replace all spaces with underscores
 }
 

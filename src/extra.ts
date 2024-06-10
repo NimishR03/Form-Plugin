@@ -1,4 +1,32 @@
-import { checkLabel, obtainType } from "./util";
+import { checkLabel, createObj, isFrameAllText, isTextLayer, obtainType, orientation } from "./util";
+
+
+export function getLayoutDisplay(node){
+
+  if(isTextLayer(node) || isFrameAllText(node)){ // Check for condition 1&2 for invalid frames
+    return null;
+  }
+  if(checkLabel(node)){ // Check for atomic
+    return obtainType(node);
+  }
+  let fields = [] as (object | string)[]; // Array for output
+  let numberOfValid = 0;
+  if(node.children){
+    for(const item of node.children){
+      const childLayout = getLayoutDisplay(item); // Recurse the function over the children of node
+      if(!!childLayout){
+        fields.push(childLayout);
+        numberOfValid++;
+      }
+    }
+  }
+  if (numberOfValid === 1){ // If only 1 valid child pass it above
+    return fields[0];
+  }
+  return createObj(orientation(node),fields); // Add object denoting a subform
+}
+
+
 
 export function obtainChildren(node){
   let inputType = [] as Object[];

@@ -11,17 +11,20 @@
         padding-left: 10px;
         box-sizing: border-box;
         font-family: Arial;
+        font-weight: bold;
         border-bottom : 1px solid #D3D3D3; 
     }
     #jsonContainer {
       white-space: pre-wrap; 
       background: white;
-      padding: 10px;
-      border-bottom : 1px solid #D3D3D3; 
+      border-bottom : 1px solid #D3D3D3;
       box-sizing: border-box;
-      font-family: monospace; 
+      font-family: 'Lucida Sans', Arial, sans-serif; 
       max-height: 83vh;
       overflow: auto; 
+      align-items: left;
+      padding: 0px;
+      margin: 0px;
     }
     body{
         background: white;
@@ -46,7 +49,64 @@
         justify-content: center;
         box-sizing: border-box;
         border-bottom : 1px solid #D3D3D3; 
-        padding: 6px;
+        padding: 2px;
+    }
+    ul {
+        padding-left: 5px;
+        margin: 0px;
+        margin-top: 5px;
+        margin-bottom: 5px;
+        list-style-type: none; 
+    }
+    li > ul {
+        border-left: 1.5px solid #cccccc;
+        margin-left: 1px;
+        padding-left: 10px;
+    }
+
+    li > ul:hover {
+        border-left-color: #444444;
+    }
+
+    li {
+        margin-left: 0px;
+        padding: 2px;
+    }
+    span {
+        font-weight: bold;
+    }
+    li.collapse > span {
+        text-decoration: underline;
+    }
+    h2{
+        padding-top: 0px;
+        padding-bottom: 0px;
+        padding-left:1px;
+        margin: 0px;
+        font-size: 16;
+    }
+
+    li.collapse > ul {
+        display: none;
+    }
+
+    li > button {
+        transform: rotate(-90deg);
+        width: 14px;
+        height: 14px;
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        padding: 0;
+        margin: 0;
+        box-sizing: border-box;
+        background: none;
+        border: none;
+        outline: none;
+        margin-left: -4px;
+    }
+    li.collapse > button {
+        transform: rotate(0deg);
     }
   </style>
 </head>
@@ -54,45 +114,90 @@
     <div id="divContainer"><button id="downloadButton">Download Files</button> </div>
     <div id="titleContainer"> Form Layout </div>
     <div id="jsonContainer"></div>
-  <script>
+    <script>
       parent.postMessage({ pluginMessage: { type: 'uiReady' } }, '*');
 
-      onmessage = (event) => {
-          if (event.data.pluginMessage.type === 'json') {
-              const jsonS = event.data.pluginMessage.jsonString;
-              const formattedJson = JSON.stringify(JSON.parse(jsonS), null, 2);
-              // Display the JSON string
-              const jsonContainer = document.getElementById('jsonContainer');
-              if (jsonContainer) {
-
-                  jsonContainer.innerText = formattedJson;
-              } else {
-                  console.error('jsonContainer element not found');
-              }
-          }
-      };
-
-    const downloadButton = document.getElementById('downloadButton');
-    downloadButton.addEventListener('click', () => {
-        parent.postMessage({ pluginMessage: { type: 'Download' } }, '*');
-
         onmessage = (event) => {
-        if (event.data.pluginMessage.type === 'downloadZip') {
-            const base64String = event.data.pluginMessage.base64String;
-            downloadFile('Files.zip', base64String);
-        }
+            if (event.data.pluginMessage.type === 'json') {
+                const jsonS = event.data.pluginMessage.jsonString;
+
+                function createBulletedList(data) {
+                    const ul = document.createElement('ul');
+                    if (data.children && Array.isArray(data.children)) {
+                        data.children.forEach(child => {
+                        const childLi = document.createElement('li');
+                        if (typeof child === 'string') {
+                            childLi.textContent = child;
+                            ul.appendChild(childLi);
+                        } else {
+                            const subFormHeader = document.createElement('li');
+                            const collapseButton = document.createElement('button');
+                            collapseButton.addEventListener('click', ()=>{
+                                subFormHeader.classList.toggle('collapse');
+                            })
+                            const headingSpan = document.createElement('span');
+                            headingSpan.textContent = `${child.name}: ${child.direction}`;
+                            collapseButton.innerHTML = `
+                            <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    fill-rule="evenodd"
+                                    clip-rule="evenodd"
+                                    d="M4.18179 6.18181C4.35753 6.00608 4.64245 6.00608 4.81819 6.18181L7.49999 8.86362L10.1818 6.18181C10.3575 6.00608 10.6424 6.00608 10.8182 6.18181C10.9939 6.35755 10.9939 6.64247 10.8182 6.81821L7.81819 9.81821C7.73379 9.9026 7.61934 9.95001 7.49999 9.95001C7.38064 9.95001 7.26618 9.9026 7.18179 9.81821L4.18179 6.81821C4.00605 6.64247 4.00605 6.35755 4.18179 6.18181Z"
+                                    fill="currentColor"
+                                />
+                            </svg>`;
+                            subFormHeader.appendChild(collapseButton);
+                            subFormHeader.appendChild(headingSpan);
+                            subFormHeader.appendChild(createBulletedList(child));
+                            ul.appendChild(subFormHeader);
+                        }
+                        });
+                    }
+                    return ul;
+                }
+
+                function createDisplayList(data){
+                    const ul = document.createElement('ul');
+                    const heading = document.createElement('h2');
+                    heading.textContent = data.name;
+                    ul.appendChild(heading);
+                    ul.appendChild(createBulletedList(data));
+                    return ul;
+                }
+
+                const formattedJson = createDisplayList(JSON.parse(jsonS));
+                const jsonContainer = document.getElementById('jsonContainer');
+                if (jsonContainer) {
+                    jsonContainer.innerHTML = '';
+                    jsonContainer.appendChild(formattedJson);
+                } 
+                else {
+                    console.error('jsonContainer element not found');
+                }
+            }
         };
 
-        function downloadFile(filename, base64) {
-        const linkSource = `data:application/zip;base64,${base64}`;
-        const downloadLink = document.createElement('a');
-        downloadLink.href = linkSource;
-        downloadLink.download = filename;
-        document.body.appendChild(downloadLink);
-        downloadLink.click();
-        document.body.removeChild(downloadLink);
-        }
-    });
-  </script>
+        const downloadButton = document.getElementById('downloadButton');
+        downloadButton.addEventListener('click', () => {
+            parent.postMessage({ pluginMessage: { type: 'Download' } }, '*');
+
+            onmessage = (event) => {
+            if (event.data.pluginMessage.type === 'downloadZip') {
+                const base64String = event.data.pluginMessage.base64String;
+                downloadFile('Files.zip', base64String);
+            }
+            };
+
+            function downloadFile(filename, base64) {
+            const linkSource = `data:application/zip;base64,${base64}`;
+            const downloadLink = document.createElement('a');
+            downloadLink.href = linkSource;
+            downloadLink.download = filename;
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+            }
+        });
+    </script>
 </body>
 </html>

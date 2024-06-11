@@ -28,6 +28,8 @@ export function generateLayout(component){
   let code = `
 //builders
 import { LayoutBuilder } from '@sprinklrjs/spaceweb-form';
+
+//constants
 import {FORM_FIELDS} './constants';
 
 export const LAYOUT = ${generateComponentCode(component,1)}

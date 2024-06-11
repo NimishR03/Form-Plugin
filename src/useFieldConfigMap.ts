@@ -37,20 +37,24 @@ code=
 export function generatefieldConfigMap(component){
     const imports = new Set<string>();
     const fieldConfigMap = obtainFieldConfigMap(component, imports);
-  let code = `//builders
-import { FieldConfigBuilder, FieldConfigMapBuilder } from '@sprinklrjs/spaceweb-form';
-
-//types
-import { FieldConfigMap } from '@sprinklrjs/spaceweb-form/types';
-
-import {FORM_FIELDS} from '../constants';
-
-`;
-
+  let code = "";
 for(const type of imports){
     code+=`
 ${formConfigImports[type]}`;
 }
+  
+  
+code+= `//builders
+import { FieldConfigBuilder, FieldConfigMapBuilder } from '@sprinklrjs/spaceweb-form';
+
+//constants
+import {FORM_FIELDS} from '../constants';
+
+//types
+import { FieldConfigMap } from '@sprinklrjs/spaceweb-form/types';
+`;
+
+
   
 code+= `
 

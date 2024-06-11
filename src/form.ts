@@ -1,8 +1,13 @@
 export function generateFormCode(component){
 let code = `
-import {LAYOUT} from './layout';
+//components
+import { Form as SpaceWebForm, useForm } from '@sprinklrjs/spaceweb-form';
+
+//hooks
 import {useFieldConfigMap} from './hooks/useFieldConfigMap';
-import { Form, useForm } from '@sprinklrjs/spaceweb-form';
+
+//layout
+import {LAYOUT} from './layout';
 
 export const ${component.name} = (): JSX.Element => {
 
@@ -13,7 +18,7 @@ export const ${component.name} = (): JSX.Element => {
     });
     
     return (
-        <Form
+        <SpaceWebForm
             layout={LAYOUT}
             fieldConfigMap={fieldConfigMap}
             values={values}

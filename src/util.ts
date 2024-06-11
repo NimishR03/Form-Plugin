@@ -181,3 +181,6 @@ export function convertToUpperSnakeCase(str: string): string {
     .replace(/\s+/g, '_'); // Replace all spaces with underscores
 }
 
+export function obtainFromName(node) {
+  return node.name;
+}

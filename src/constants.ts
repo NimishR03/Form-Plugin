@@ -8,8 +8,7 @@ return `    ${convertToUpperSnakeCase(obtainName(component))}: '${converttoCamel
     else {
 if (component.children) {
 code=
-`
-${component.children.map(child => obtainConstants(child)).join(',\n')}
+`${component.children.map(child => obtainConstants(child)).join(',\n')}
 `;
 }
     }

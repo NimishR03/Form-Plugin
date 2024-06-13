@@ -153,13 +153,13 @@ export function obtainName(node){
 export function createObj (orientation,children){ // Creates the object with its direction and Children array
   if(orientation===1){
     return {
-      "direction" : "Horizontal",
+      "direction" : "horizontal",
       "children" : children,
     }
   }
   else{
     return {
-      "direction" : "Vertical",
+      "direction" : "vertical",
       "children" : children,
     }
   }
@@ -181,6 +181,6 @@ export function convertToUpperSnakeCase(str: string): string {
     .replace(/\s+/g, '_'); // Replace all spaces with underscores
 }
 
-export function obtainFromName(node) {
+export function obtainFormName(node) {
   return node.name;
 }

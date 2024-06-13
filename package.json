@@ -48,6 +48,7 @@
     }
   },
   "dependencies": {
+    "@sprinklrjs/spaceweb": "^12.33.2",
     "@types/node": "^20.14.2",
     "acorn": "^8.11.3",
     "acorn-import-assertions": "^1.9.0",

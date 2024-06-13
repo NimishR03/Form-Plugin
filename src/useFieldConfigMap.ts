@@ -1,13 +1,14 @@
 import { checkLabel, convertToUpperSnakeCase, converttoCamelCase, obtainName, obtainType } from "./util";
 
 const formConfigImports = {
-    'SelectInput' : "import { Select } from '@sprinklrjs/modules/infra/components/interactiveAtoms/Select'",
+    'SelectInput' : "import { SelectInput } from '@sprinklrjs/modules/platform/form/fieldRenderers/SelectInput';",
     'TextInput' : "import { TextInput } from '@sprinklrjs/modules/platform/form/fieldRenderers/TextInput'",
     'AsyncSelectInput' : "import { DimensionLookupAsyncSelectInput } from '@sprinklrjs/modules/platform/form/fieldRenderers/DimensionLookupAsyncSelectInput'"
         
 }
+
 const formConfigComponents = {
-    'SelectInput' : "Select",
+    'SelectInput' : "SelectInput",
     'TextInput' : "TextInput",
     'AsyncSelectInput' : "DimensionLookupAsyncSelectInput"
         
@@ -20,7 +21,10 @@ export function obtainFieldConfigMap(component,imports) {
         imports.add(componentType);
         let fieldConfig=`           .addFieldConfig({
                 id: FORM_FIELDS.${convertToUpperSnakeCase(obtainName(component))},
-                Component: ${formConfigComponents[componentType]}
+                Component: ${formConfigComponents[componentType]},
+                componentProps: {
+                label : '${component.name}',
+                }
             })`;
         return fieldConfig;
     } 
@@ -37,14 +41,18 @@ code=
 export function generatefieldConfigMap(component){
     const imports = new Set<string>();
     const fieldConfigMap = obtainFieldConfigMap(component, imports);
-  let code = "";
+  let code = "//components";
 for(const type of imports){
     code+=`
 ${formConfigImports[type]}`;
 }
   
   
-code+= `//builders
+code+= `
+
+import { useMemo } from 'react';
+
+//builders
 import { FieldConfigBuilder, FieldConfigMapBuilder } from '@sprinklrjs/spaceweb-form';
 
 //constants
@@ -52,19 +60,18 @@ import {FORM_FIELDS} from '../constants';
 
 //types
 import { FieldConfigMap } from '@sprinklrjs/spaceweb-form/types';
+
 `;
 
 
   
 code+= `
 
-export const useFieldConfigMap = (): FieldConfigMap => {
-    const fieldConfigMap = useMemo( () => 
+export const useFieldConfigMap = (): FieldConfigMap => useMemo( () => 
         new FieldConfigMapBuilder()
-${fieldConfigMap}          .build(),
-    []);
-    return fieldConfigMap
-};
+${fieldConfigMap}.build(),
+    []
+);
 `
   return code;
 }

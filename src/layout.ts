@@ -9,28 +9,38 @@ return `${indentation}.addNode(FORM_FIELDS.${convertToUpperSnakeCase(obtainName(
     } 
     else {
 if (component.children) {
-code=
+  if(depth===1){
+    code=
 `
-${indentation}.addnode(
-  ${indentation}new LayoutBuilder:({
+${indentation}new LayoutBuilder({
+${indentation}${indentation}direction: '${component.direction}',
+${indentation}})
+${component.children.map(child => generateComponentCode(child, depth + 2)).join('\n')}
+${indentation}.build()`;
+}
+  
+  else{
+code=
+`${indentation}.addNode(
+  ${indentation}new LayoutBuilder({
   ${indentation}${indentation}direction: '${component.direction}',
   ${indentation}})
-
-${component.children.map(child => generateComponentCode(child, depth + 2)).join(',\n')}
+${component.children.map(child => generateComponentCode(child, depth + 2)).join('\n')}
   ${indentation}.build()
 ${indentation})`;
 }
+}
+    
     }
     return `${code}`;
   }
 
 export function generateLayout(component){
-  let code = `
-//builders
+  let code = `//builders
 import { LayoutBuilder } from '@sprinklrjs/spaceweb-form';
 
 //constants
-import {FORM_FIELDS} './constants';
+import {FORM_FIELDS} from './constants';
 
 export const LAYOUT = ${generateComponentCode(component,1)}
 `

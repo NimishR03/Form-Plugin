@@ -1,5 +1,5 @@
-export function generateFormCode(component){
-let code = `//components
+export function generateFormCode(component) {
+  let code = `//components
 import { Form as SpaceWebForm, useForm } from '@sprinklrjs/spaceweb-form';
 
 //hooks
@@ -25,6 +25,6 @@ export const ${component.name} = (): JSX.Element => {
             onAction={handleAction}
         />
     )
-}`
-    return code;
-  }
+}`;
+  return code;
+}

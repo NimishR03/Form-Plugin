@@ -1,25 +1,35 @@
 import { isRequired } from "./extra";
-import { checkLabel, convertToUpperSnakeCase, converttoCamelCase, obtainName, obtainPlaceholder, obtainType } from "./util";
+import {
+  checkLabel,
+  convertToUpperSnakeCase,
+  converttoCamelCase,
+  obtainName,
+  obtainPlaceholder,
+  obtainType,
+} from "./util";
 
 const formConfigImports = {
-    'SelectInput' : "import { SelectInput } from '@sprinklrjs/modules/platform/form/fieldRenderers/SelectInput';",
-    'TextInput' : "import { TextInput } from '@sprinklrjs/modules/platform/form/fieldRenderers/TextInput'",
-    'AsyncSelectInput' : "import { DimensionLookupAsyncSelectInput } from '@sprinklrjs/modules/platform/form/fieldRenderers/DimensionLookupAsyncSelectInput'"
-}
+  SelectInput:
+    "import { SelectInput } from '@sprinklrjs/modules/platform/form/fieldRenderers/SelectInput';",
+  TextInput:
+    "import { TextInput } from '@sprinklrjs/modules/platform/form/fieldRenderers/TextInput'",
+  AsyncSelectInput:
+    "import { DimensionLookupAsyncSelectInput } from '@sprinklrjs/modules/platform/form/fieldRenderers/DimensionLookupAsyncSelectInput'",
+};
 
 const formConfigComponents = {
-    'SelectInput' : "SelectInput",
-    'TextInput' : "TextInput",
-    'AsyncSelectInput' : "DimensionLookupAsyncSelectInput"
-}
+  SelectInput: "SelectInput",
+  TextInput: "TextInput",
+  AsyncSelectInput: "DimensionLookupAsyncSelectInput",
+};
 
-export function obtainFieldConfigMap(component,imports) {
-    let code;
-    if (checkLabel(component)) {
-        let componentType = obtainType(component);
-        imports.add(componentType);
-        if(isRequired(component)){
-            let fieldConfig=`       .addFieldConfig({
+export function obtainFieldConfigMap(component, imports) {
+  let code;
+  if (checkLabel(component)) {
+    let componentType = obtainType(component);
+    imports.add(componentType);
+    if (isRequired(component)) {
+      let fieldConfig = `       .addFieldConfig({
             id: FORM_FIELDS.${convertToUpperSnakeCase(obtainName(component))},
             Component: ${formConfigComponents[componentType]},
             componentProps: {
@@ -28,10 +38,9 @@ export function obtainFieldConfigMap(component,imports) {
                 required: false,
             },
         })`;
-            return fieldConfig;
-        }
-        else{
-            let fieldConfig=`       .addFieldConfig({
+      return fieldConfig;
+    } else {
+      let fieldConfig = `       .addFieldConfig({
             id: FORM_FIELDS.${convertToUpperSnakeCase(obtainName(component))},
             Component: ${formConfigComponents[componentType]},
             componentProps: {
@@ -40,31 +49,30 @@ export function obtainFieldConfigMap(component,imports) {
                 required: true,
             },
         })`;
-            return fieldConfig;
-        }
-        
-    } 
-    else {
+      return fieldConfig;
+    }
+  } else {
     if (component.children) {
-    code=`${component.children.map(child => obtainFieldConfigMap(child,imports)).join('\n')}`;
+      code = `${component.children
+        .map((child) => obtainFieldConfigMap(child, imports))
+        .join("\n")}`;
     }
-    }
-    return `${code}`;
+  }
+  return `${code}`;
+}
+
+export function generatefieldConfigMap(component) {
+  const imports = new Set<string>();
+  const fieldConfigMap = obtainFieldConfigMap(component, imports);
+  let code = `import { useMemo } from 'react';
+  
+//component`;
+  for (const type of imports) {
+    code += `
+${formConfigImports[type]}`;
   }
 
-export function generatefieldConfigMap(component){
-    const imports = new Set<string>();
-    const fieldConfigMap = obtainFieldConfigMap(component, imports);
-  let code = "//components";
-for(const type of imports){
-    code+=`
-${formConfigImports[type]}`;
-}
-  
-  
-code+= `
-
-import { useMemo } from 'react';
+  code += `
 
 //builders
 import { FieldConfigBuilder, FieldConfigMapBuilder } from '@sprinklrjs/spaceweb-form';
@@ -74,19 +82,15 @@ import {FORM_FIELDS} from '../constants';
 
 //types
 import { FieldConfigMap } from '@sprinklrjs/spaceweb-form/types';
-
 `;
 
-
-  
-code+= `
-
+  code += `
 export const useFieldConfigMap = (): FieldConfigMap => useMemo( () => 
-    new FieldConfigMapBuilder()
+new FieldConfigMapBuilder()
 ${fieldConfigMap}
-        .build(),
-    []
+    .build(),
+[]
 );
-`
+`;
   return code;
 }

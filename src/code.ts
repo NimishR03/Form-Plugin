@@ -12,6 +12,7 @@ import { generatefieldConfigMap } from "./useFieldConfigMap";
 import { generateFormCode } from "./form";
 import { generateIndexCode } from ".";
 import { getLayoutDisplay } from "./display";
+import { generateValidation } from "./validation";
 
 figma.showUI(__html__, { width: 400, height: 500 });
 const formNode = figma.currentPage.selection.find((node) =>
@@ -26,6 +27,7 @@ const constantsCode = generateConstants(formLayout);
 const configMapCode = generatefieldConfigMap(formLayout);
 const formCode = generateFormCode(formNode);
 const indexCode = generateIndexCode(formNode);
+const validationCode = generateValidation(formLayout);
 
 figma.ui.onmessage = (msg) => {
   if (msg.type === "uiReady") {
@@ -43,6 +45,7 @@ async function handleGenerateDownload() {
   zip.file("hooks/useFieldConfigMap.ts", configMapCode);
   zip.file(`${obtainFormName(formNode)}.tsx`, formCode);
   zip.file("index.tsx", indexCode);
+  zip.file("validation.ts", validationCode);
   const base64String = await zip.generateAsync({ type: "base64" });
   figma.ui.postMessage({ type: "downloadZip", base64String });
 }

@@ -8,12 +8,16 @@ import {useFieldConfigMap} from './hooks/useFieldConfigMap';
 //layout
 import {LAYOUT} from './layout';
 
+//validation
+import { validationSchema } from './validation';
+import { validate } from '@sprinklrjs/validation-schema/validate';
+
 export const ${component.name} = (): JSX.Element => {
 
     const fieldConfigMap = useFieldConfigMap();
     
     const { values, errors, handleAction, handleSubmit } = useForm({
-        //validate: ({ values: valuesToValidate }) => validate(valuesToValidate, validationSchema), //to be added later
+        validate: ({ values: valuesToValidate }) => validate(valuesToValidate, validationSchema), 
     });
     
     return (

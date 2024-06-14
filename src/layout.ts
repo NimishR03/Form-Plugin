@@ -27,6 +27,7 @@ ${indentation}  new LayoutBuilder({
 ${indentation}    direction: '${component.direction}',
 ${indentation}    group: {
 ${indentation}      title: '${component.name}',
+${indentation}      className: 'p-0',
 ${indentation}    },
 ${indentation}  })
 ${component.children

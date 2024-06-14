@@ -13,7 +13,10 @@ if (component.children) {
     code=
 `
 ${indentation}new LayoutBuilder({
-${indentation}${indentation}direction: '${component.direction}',
+${indentation}  direction: '${component.direction}',
+${indentation}  group: {
+${indentation}    title: '${component.name}',
+${indentation}  },
 ${indentation}})
 ${component.children.map(child => generateComponentCode(child, depth + 2)).join('\n')}
 ${indentation}.build()`;
@@ -22,9 +25,12 @@ ${indentation}.build()`;
   else{
 code=
 `${indentation}.addNode(
-  ${indentation}new LayoutBuilder({
-  ${indentation}${indentation}direction: '${component.direction}',
-  ${indentation}})
+${indentation}  new LayoutBuilder({
+${indentation}    direction: '${component.direction}',
+${indentation}    group: {
+${indentation}      title: '${component.name}',
+${indentation}    },
+${indentation}  })
 ${component.children.map(child => generateComponentCode(child, depth + 2)).join('\n')}
   ${indentation}.build()
 ${indentation})`;

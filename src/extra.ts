@@ -39,6 +39,16 @@ export function isText(layer){
       }
     return false;
   }
+
+  export function isRequired(node){
+    if(node.children){
+      for (const layer of node.children) { // Gives the type of object as it runs on Atomic elements only
+          if(layer.name === "Label"){
+            return isText(layer);
+        }
+      }
+    }
+  }
   
   export function getChild(node) {
     let childArray = [] as SceneNode[]; //Gives the Ordered list of all the fields of the layers

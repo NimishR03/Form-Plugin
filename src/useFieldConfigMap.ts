@@ -1,17 +1,16 @@
-import { checkLabel, convertToUpperSnakeCase, converttoCamelCase, obtainName, obtainType } from "./util";
+import { isRequired } from "./extra";
+import { checkLabel, convertToUpperSnakeCase, converttoCamelCase, obtainName, obtainPlaceholder, obtainType } from "./util";
 
 const formConfigImports = {
     'SelectInput' : "import { SelectInput } from '@sprinklrjs/modules/platform/form/fieldRenderers/SelectInput';",
     'TextInput' : "import { TextInput } from '@sprinklrjs/modules/platform/form/fieldRenderers/TextInput'",
     'AsyncSelectInput' : "import { DimensionLookupAsyncSelectInput } from '@sprinklrjs/modules/platform/form/fieldRenderers/DimensionLookupAsyncSelectInput'"
-        
 }
 
 const formConfigComponents = {
     'SelectInput' : "SelectInput",
     'TextInput' : "TextInput",
     'AsyncSelectInput' : "DimensionLookupAsyncSelectInput"
-        
 }
 
 export function obtainFieldConfigMap(component,imports) {
@@ -19,21 +18,36 @@ export function obtainFieldConfigMap(component,imports) {
     if (checkLabel(component)) {
         let componentType = obtainType(component);
         imports.add(componentType);
-        let fieldConfig=`           .addFieldConfig({
-                id: FORM_FIELDS.${convertToUpperSnakeCase(obtainName(component))},
-                Component: ${formConfigComponents[componentType]},
-                componentProps: {
+        if(isRequired(component)){
+            let fieldConfig=`       .addFieldConfig({
+            id: FORM_FIELDS.${convertToUpperSnakeCase(obtainName(component))},
+            Component: ${formConfigComponents[componentType]},
+            componentProps: {
                 label : '${component.name}',
-                }
-            })`;
-        return fieldConfig;
+                placeholder: '${obtainPlaceholder(component)}',
+                required: false,
+            },
+        })`;
+            return fieldConfig;
+        }
+        else{
+            let fieldConfig=`       .addFieldConfig({
+            id: FORM_FIELDS.${convertToUpperSnakeCase(obtainName(component))},
+            Component: ${formConfigComponents[componentType]},
+            componentProps: {
+                label : '${component.name}',
+                placeholder: '${obtainPlaceholder(component)}',
+                required: true,
+            },
+        })`;
+            return fieldConfig;
+        }
+        
     } 
     else {
-if (component.children) {
-code=
-`${component.children.map(child => obtainFieldConfigMap(child,imports)).join('\n')}
-`;
-}
+    if (component.children) {
+    code=`${component.children.map(child => obtainFieldConfigMap(child,imports)).join('\n')}`;
+    }
     }
     return `${code}`;
   }
@@ -68,8 +82,9 @@ import { FieldConfigMap } from '@sprinklrjs/spaceweb-form/types';
 code+= `
 
 export const useFieldConfigMap = (): FieldConfigMap => useMemo( () => 
-        new FieldConfigMapBuilder()
-${fieldConfigMap}.build(),
+    new FieldConfigMapBuilder()
+${fieldConfigMap}
+        .build(),
     []
 );
 `

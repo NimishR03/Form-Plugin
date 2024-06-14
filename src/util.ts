@@ -64,7 +64,7 @@ export function getLayout(node){
   if (numberOfValid === 1){ // If only 1 valid child pass it above
     return fields[0];
   }
-  return createObj(orientation(node),fields); // Add object denoting a subform
+  return createObj(node.name,orientation(node),fields); // Add object denoting a subform
 }
 
 
@@ -147,20 +147,42 @@ export function obtainName(node){
   }
   return inputType;
 }
+export function obtainPlaceholder(node){
+  let inputType ="";
+  if(node.children){
+    for (const layer of node.children) { // Gives the type of object as it runs on Atomic elements only
+      if(layer.name !== "Label"){
+        if(layer.type !== "TEXT" && layer.children){
+          for (const item  of layer.children) { // Gives the type of object as it runs on Atomic elements only
+            if(item.type === "TEXT"){
+              inputType=item.characters;
+            }
+          }
+        }
+        else{
+          inputType= layer.characters;
+        }
+      }
+    }
+  }
+  return inputType;
+}
   
 
 
-export function createObj (orientation,children){ // Creates the object with its direction and Children array
+export function createObj (name,orientation,children){ // Creates the object with its direction and Children array
   if(orientation===1){
     return {
       "direction" : "horizontal",
       "children" : children,
+      "name": name
     }
   }
   else{
     return {
       "direction" : "vertical",
       "children" : children,
+      "name": name
     }
   }
 }

@@ -29,6 +29,8 @@ const formCode = generateFormCode(formNode);
 const indexCode = generateIndexCode(formNode);
 const validationCode = generateValidation(formLayout);
 
+console.log(layoutCode);
+
 figma.ui.onmessage = (msg) => {
   if (msg.type === "uiReady") {
     let jsonString = JSON.stringify(formLayoutDisplay);

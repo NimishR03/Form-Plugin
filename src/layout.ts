@@ -1,4 +1,9 @@
-import { checkLabel, convertToUpperSnakeCase, obtainName } from "./util";
+import {
+  checkLabel,
+  convertToUpperSnakeCase,
+  obtainName,
+  obtainTitle,
+} from "./util";
 
 export function generateComponentCode(component, depth) {
   const indentation = "  ".repeat(depth);
@@ -12,10 +17,10 @@ export function generateComponentCode(component, depth) {
       if (depth === 1) {
         code = `
 ${indentation}new LayoutBuilder({
-${indentation}  direction: '${component.direction}',
-${indentation}  group: {
-${indentation}    title: '${component.name}',
-${indentation}  },
+${indentation}  direction: '${component.direction}',${isTitle(
+          component.node,
+          depth
+        )}
 ${indentation}})
 ${component.children
   .map((child) => generateComponentCode(child, depth + 2))
@@ -24,11 +29,10 @@ ${indentation}.build()`;
       } else {
         code = `${indentation}.addNode(
 ${indentation}  new LayoutBuilder({
-${indentation}    direction: '${component.direction}',
-${indentation}    group: {
-${indentation}      title: '${component.name}',
-${indentation}      className: 'p-0',
-${indentation}    },
+${indentation}    direction: '${component.direction}', ${isTitle(
+          component.node,
+          depth
+        )}
 ${indentation}  })
 ${component.children
   .map((child) => generateComponentCode(child, depth + 2))
@@ -51,4 +55,17 @@ import {FORM_FIELDS} from './constants';
 export const LAYOUT = ${generateComponentCode(component, 1)}
 `;
   return code;
+}
+
+function isTitle(node, depth) {
+  let title = obtainTitle(node);
+  const indentation = "  ".repeat(depth);
+  if (title !== "") {
+    return `
+${indentation}    group: {
+${indentation}      title: '${title}',
+${indentation}      className: 'p-0',
+${indentation}    },`;
+  }
+  return "";
 }

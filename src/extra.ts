@@ -16,7 +16,6 @@ export function obtainChildren(node) {
   }
   return inputType;
 }
-
 export function isText(layer) {
   if (isParentofAtomic(layer) || checkLabel(layer)) {
     return false;

@@ -1,21 +1,5 @@
 import { checkLabel, obtainType } from "./util";
 
-export function obtainChildren(node) {
-  let inputType = [] as Object[];
-  if (node.children) {
-    for (const layer of node.children) {
-      // Gives the type of object as it runs on Atomic elements only
-      if (isParentofAtomic(layer)) {
-        //inputType.push(getLayout(layer));
-      } else {
-        if (layer.name !== "Label" && !isText(layer)) {
-          inputType.push(obtainType(layer));
-        }
-      }
-    }
-  }
-  return inputType;
-}
 export function isText(layer) {
   if (isParentofAtomic(layer) || checkLabel(layer)) {
     return false;
@@ -58,19 +42,6 @@ export function getChild(node) {
     }
   }
   return childArray;
-}
-export function layerOrder() {
-  let output = [] as SceneNode[];
-  for (const node of figma.currentPage.selection) {
-    if (node.name == "Form") {
-      output.push(node);
-      let childrenArr = getChild(node);
-      for (const item of childrenArr) {
-        output.push(item);
-      }
-    }
-  }
-  return output;
 }
 export function isParentofAtomic(node) {
   // Checks weather the node is a parent of atomic element or not

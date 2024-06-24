@@ -1,0 +1,114 @@
+/*
+This files contains the necessary functions for the code.
+
+The getLayout() function gives the laout of the elements with a array of objects.
+The direction is calculated using coordinates, if they are horizontaly oriented, the y value remains same, 
+else x value remains same. Then a recursive loop is run on the node to calculate all the atomic elements and subForms.
+
+The checkLabel() function checks if a label field is present under the node so that we can denote it atomic
+
+The obtainChildren() function gives the children for atomic elements
+
+The getChild() function gives all the children under a node
+
+The createObj() function creates the objects for the getLayout function
+
+The isParentofAtomic() Tells if the element is a parent of an atomic element or not
+
+*/
+/*
+ *  Assumption : Atomic elements will have LABEL parallel to them, based on which we will derive if that is an atomic element or not
+ *
+ *
+ *  getLayout -> recursive function which will be called with mainForm selection as an argument, and will return an object containing
+ *               direction and children array
+ *
+ *
+ *
+ * Recursion :
+ *      Break Cases (Exit Conditions)
+ *    1) If particular children(K) is of type TEXT, it will return nothing / flag / false, in order to not include this element in children array - isTextLayer()
+ *    2) If particular children(k) is of type FRAME, and all it's immediate children are of type TEXT, it will return nothing / flag / false, in order to not include this element in children array- isFrameText()
+ *
+ *    If any element has any of the above condition true, it will be considered as invalid element,
+ *
+ *    3) If particular children(k) has LABEL as it's immediate children, that 'k' is considered to be an atomic element, and it will return a string with 'obtainType' util -
+ *    4) If particular children(k) has none of above mentioned condition true, it will be considered as subForm, and it will call getLayout recursive function on all of its children
+ *          - If there is only one valid element in immediate children of 'k', it will just return the return value of that particular children as it is. It will not add direction on it's own, as there will not be more than one element for direction to work
+ *
+ *
+ *
+ */
+
+import { checkLabel } from "./checkLabel";
+import { isParentofAtomic } from "./isParent";
+import { isTextLayer, isFrameAllText } from "./isText";
+
+export function getLayout(node) {
+  if (isTextLayer(node) || isFrameAllText(node)) {
+    // Check for condition 1&2 for invalid frames
+    return null;
+  }
+  if (checkLabel(node)) {
+    console.log(node.name);
+    return node;
+  }
+  if (isParentofAtomic(node)) {
+    let fields = [] as (object | string)[]; // Array for output
+    let numberOfValid = 0;
+    if (node.children) {
+      for (const item of node.children) {
+        const childLayout = getLayout(item); // Recurse the function over the children of node
+        if (!!childLayout) {
+          fields.push(childLayout);
+          numberOfValid++;
+        }
+      }
+    }
+    if (numberOfValid === 1) {
+      // If only 1 valid child pass it above
+      return fields[0];
+    }
+    return createObj(node, orientation(node), fields); // Add object denoting a subform
+  }
+}
+
+export function orientation(node) {
+  // Provides the orientation of form
+  const xmap = new Map();
+  const ymap = new Map();
+  if (node.children) {
+    for (const item of node.children) {
+      xmap.set(item.x, "1");
+      ymap.set(item.y, "1");
+    }
+  }
+  // Check for orientaton using map, if all are same in x direction, the xmap will have size 1.
+  const values = Array.from(xmap.values());
+  if (values.length <= 1) {
+    return 2;
+  }
+  for (let i = 1; i < values.length; i++) {
+    if (Math.abs(values[i] - values[i - 1]) > 5) {
+      return 2;
+    }
+  }
+  return 1;
+}
+
+export function createObj(node, orientation, children) {
+  // Creates the object with its direction and Children array
+  if (orientation === 1) {
+    return {
+      direction: "horizontal",
+      children: children,
+      node: node,
+    };
+  } else {
+    return {
+      direction: "vertical",
+      children: children,
+      node: node,
+    };
+  }
+}

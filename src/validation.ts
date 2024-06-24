@@ -1,15 +1,15 @@
-import { obtainConstants } from "./constants";
-import { isRequired } from "./extra";
-import { checkLabel, convertToUpperSnakeCase, obtainName } from "./util";
+import { checkLabel, isRequired } from "./helpers/checkLabel";
+import { convertToUpperSnakeCase } from "./helpers/convertCasing";
+import { obtainName } from "./helpers/obtainFieldNames";
 
 export function obtainValidations(component) {
   let code;
   if (checkLabel(component)) {
-    if (!isRequired(component)) {
+    if (isRequired(component)) {
       return `   
-    [FORM_FIELDS.${convertToUpperSnakeCase(
-      obtainName(component)
-    )}]: vs.string().required (ERROR_TYPES.MANDATORY()),`;
+  [FORM_FIELDS.${convertToUpperSnakeCase(
+    obtainName(component)
+  )}]: vs.string().required (ERROR_TYPES.MANDATORY()),`;
     } else {
       return;
     }

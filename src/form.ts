@@ -14,21 +14,21 @@ import { validate } from '@sprinklrjs/validation-schema/validate';
 
 export const ${component.name} = (): JSX.Element => {
 
-    const fieldConfigMap = useFieldConfigMap();
+  const fieldConfigMap = useFieldConfigMap();
     
-    const { values, errors, handleAction, handleSubmit } = useForm({
-        validate: ({ values: valuesToValidate }) => validate(valuesToValidate, validationSchema), 
-    });
+  const { values, errors, handleAction, handleSubmit } = useForm({
+    validate: ({ values: valuesToValidate }) => validate(valuesToValidate, validationSchema), 
+  });
     
-    return (
-        <SpaceWebForm
-            layout={LAYOUT}
-            fieldConfigMap={fieldConfigMap}
-            values={values}
-            errors={errors}
-            onAction={handleAction}
-        />
-    )
+  return (
+    <SpaceWebForm
+      layout={LAYOUT}
+      fieldConfigMap={fieldConfigMap}
+      values={values}
+      errors={errors}
+      onAction={handleAction}
+    />
+  )
 }`;
   return code;
 }

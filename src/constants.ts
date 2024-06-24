@@ -1,9 +1,9 @@
+import { checkLabel } from "./helpers/checkLabel";
 import {
-  checkLabel,
   convertToUpperSnakeCase,
   converttoCamelCase,
-  obtainName,
-} from "./util";
+} from "./helpers/convertCasing";
+import { obtainName } from "./helpers/obtainFieldNames";
 
 export function obtainConstants(component) {
   let code;

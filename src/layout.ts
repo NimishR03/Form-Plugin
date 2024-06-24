@@ -1,9 +1,6 @@
-import {
-  checkLabel,
-  convertToUpperSnakeCase,
-  obtainName,
-  obtainTitle,
-} from "./util";
+import { checkLabel } from "./helpers/checkLabel";
+import { convertToUpperSnakeCase } from "./helpers/convertCasing";
+import { obtainName, obtainTitle } from "./helpers/obtainFieldNames";
 
 export function generateComponentCode(component, depth) {
   const indentation = "  ".repeat(depth);
@@ -23,7 +20,7 @@ ${indentation}  direction: '${component.direction}',${isTitle(
         )}
 ${indentation}})
 ${component.children
-  .map((child) => generateComponentCode(child, depth + 2))
+  .map((child) => generateComponentCode(child, depth + 1))
   .join("\n")}
 ${indentation}.build()`;
       } else {

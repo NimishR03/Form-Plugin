@@ -5,7 +5,7 @@
 import JSZip from "jszip";
 
 //helpers
-import { getLayout, obtainFormName } from "./util";
+import { getLayout } from "./helpers/getLayout";
 import { generateLayout } from "./layout";
 import { generateConstants } from "./constants";
 import { generatefieldConfigMap } from "./useFieldConfigMap";
@@ -13,6 +13,7 @@ import { generateFormCode } from "./form";
 import { generateIndexCode } from ".";
 import { getLayoutDisplay } from "./display";
 import { generateValidation } from "./validation";
+import { obtainFormName } from "./helpers/obtainFieldNames";
 
 figma.showUI(__html__, { width: 400, height: 500 });
 const formNode = figma.currentPage.selection.find((node) =>
@@ -28,8 +29,6 @@ const configMapCode = generatefieldConfigMap(formLayout);
 const formCode = generateFormCode(formNode);
 const indexCode = generateIndexCode(formNode);
 const validationCode = generateValidation(formLayout);
-
-console.log(layoutCode);
 
 figma.ui.onmessage = (msg) => {
   if (msg.type === "uiReady") {

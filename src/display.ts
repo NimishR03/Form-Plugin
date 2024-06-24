@@ -1,10 +1,7 @@
-import {
-  isTextLayer,
-  isFrameAllText,
-  checkLabel,
-  obtainName,
-  orientation,
-} from "./util";
+import { checkLabel } from "./helpers/checkLabel";
+import { orientation } from "./helpers/getLayout";
+import { isTextLayer, isFrameAllText } from "./helpers/isText";
+import { obtainName } from "./helpers/obtainFieldNames";
 
 export function getLayoutDisplay(node) {
   if (isTextLayer(node) || isFrameAllText(node)) {

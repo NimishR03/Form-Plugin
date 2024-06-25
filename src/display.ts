@@ -1,5 +1,5 @@
 import { checkLabel } from "./helpers/checkLabel";
-import { orientation } from "./helpers/getLayout";
+import { isParentofAtomic } from "./helpers/isParent";
 import { isTextLayer, isFrameAllText } from "./helpers/isText";
 import { obtainName } from "./helpers/obtainFieldNames";
 
@@ -12,22 +12,73 @@ export function getLayoutDisplay(node) {
     // Check for atomic
     return obtainName(node);
   }
-  let fields = [] as (object | string)[]; // Array for output
-  let numberOfValid = 0;
-  if (node.children) {
-    for (const item of node.children) {
-      const childLayout = getLayoutDisplay(item); // Recurse the function over the children of node
-      if (!!childLayout) {
-        fields.push(childLayout);
-        numberOfValid++;
+  if (isParentofAtomic(node)) {
+    let fields = [] as (object | string)[]; // Array for output
+    let orientation = 0;
+    let xmap = new Array();
+    if (node.children) {
+      for (const item of node.children) {
+        if (isParentofAtomic(item) || checkLabel(item)) {
+          xmap.push(item);
+        }
       }
     }
+    if (node.layoutMode === "NONE") {
+      xmap = xmap.reverse();
+    }
+    // Check for orientaton using map, if all are same in x direction, the xmap will have size 1.
+    if (xmap.length <= 1) {
+      const childLayout = getLayoutDisplay(xmap[0]); // Recurse the function over the children of node
+      if (!!childLayout) {
+        return childLayout;
+      } else {
+        return null;
+      }
+    } else {
+      for (let i = 1; i < xmap.length; i++) {
+        if (Math.abs(xmap[i].x - xmap[i - 1].x) > 5) {
+          orientation = 1;
+        }
+      }
+      if (orientation === 0) {
+        orientation = 2;
+      }
+    }
+
+    let subFields = [] as (object | string)[];
+    const childLayout = getLayoutDisplay(xmap[0]);
+    if (!!childLayout) {
+      subFields.push(childLayout);
+    }
+    for (let i = 1; i < xmap.length; i++) {
+      if (xmap[i].x - xmap[i - 1].x > 5) {
+        const childLayout = getLayoutDisplay(xmap[i]);
+        if (!!childLayout) {
+          subFields.push(childLayout);
+        }
+      } else {
+        if (subFields.length === 1) {
+          fields.push(subFields[0]);
+        } else {
+          fields.push(createObjDisplay(node, 1, subFields));
+        }
+        subFields.length = 0;
+        const childLayout = getLayoutDisplay(xmap[i]);
+        if (!!childLayout) {
+          subFields.push(childLayout);
+        }
+      }
+    }
+    if (subFields.length === 1) {
+      fields.push(subFields[0]);
+    } else {
+      fields.push(createObjDisplay(node.name, 1, subFields));
+    }
+    if (fields.length === 1) {
+      return fields[0];
+    }
+    return createObjDisplay(node.name, 2, fields); // Add object denoting a subform
   }
-  if (numberOfValid === 1) {
-    // If only 1 valid child pass it above
-    return fields[0];
-  }
-  return createObjDisplay(node.name, orientation(node), fields); // Add object denoting a subform
 }
 
 export function createObjDisplay(name, orientation, children) {

@@ -50,50 +50,75 @@ export function getLayout(node) {
     return null;
   }
   if (checkLabel(node)) {
-    console.log(node.name);
     return node;
   }
   if (isParentofAtomic(node)) {
     let fields = [] as (object | string)[]; // Array for output
-    let numberOfValid = 0;
+    let orientation = 0;
+    let xmap = new Array();
     if (node.children) {
       for (const item of node.children) {
-        const childLayout = getLayout(item); // Recurse the function over the children of node
-        if (!!childLayout) {
-          fields.push(childLayout);
-          numberOfValid++;
+        if (isParentofAtomic(item) || checkLabel(item)) {
+          xmap.push(item);
         }
       }
     }
-    if (numberOfValid === 1) {
-      // If only 1 valid child pass it above
+    if (node.layoutMode === "NONE") {
+      xmap = xmap.reverse();
+    }
+    // Check for orientaton using map, if all are same in x direction, the xmap will have size 1.
+    if (xmap.length <= 1) {
+      const childLayout = getLayout(xmap[0]); // Recurse the function over the children of node
+      if (!!childLayout) {
+        return childLayout;
+      } else {
+        return null;
+      }
+    } else {
+      for (let i = 1; i < xmap.length; i++) {
+        if (Math.abs(xmap[i].x - xmap[i - 1].x) > 5) {
+          orientation = 1;
+        }
+      }
+      if (orientation === 0) {
+        orientation = 2;
+      }
+    }
+
+    let subFields = [] as (object | string)[];
+    const childLayout = getLayout(xmap[0]);
+    if (!!childLayout) {
+      subFields.push(childLayout);
+    }
+    for (let i = 1; i < xmap.length; i++) {
+      if (xmap[i].x - xmap[i - 1].x > 5) {
+        const childLayout = getLayout(xmap[i]);
+        if (!!childLayout) {
+          subFields.push(childLayout);
+        }
+      } else {
+        if (subFields.length === 1) {
+          fields.push(subFields[0]);
+        } else {
+          fields.push(createObj(node, 1, subFields));
+        }
+        subFields.length = 0;
+        const childLayout = getLayout(xmap[i]);
+        if (!!childLayout) {
+          subFields.push(childLayout);
+        }
+      }
+    }
+    if (subFields.length === 1) {
+      fields.push(subFields[0]);
+    } else {
+      fields.push(createObj(node, 1, subFields));
+    }
+    if (fields.length === 1) {
       return fields[0];
     }
-    return createObj(node, orientation(node), fields); // Add object denoting a subform
+    return createObj(node, 2, fields); // Add object denoting a subform
   }
-}
-
-export function orientation(node) {
-  // Provides the orientation of form
-  const xmap = new Map();
-  const ymap = new Map();
-  if (node.children) {
-    for (const item of node.children) {
-      xmap.set(item.x, "1");
-      ymap.set(item.y, "1");
-    }
-  }
-  // Check for orientaton using map, if all are same in x direction, the xmap will have size 1.
-  const values = Array.from(xmap.values());
-  if (values.length <= 1) {
-    return 2;
-  }
-  for (let i = 1; i < values.length; i++) {
-    if (Math.abs(values[i] - values[i - 1]) > 5) {
-      return 2;
-    }
-  }
-  return 1;
 }
 
 export function createObj(node, orientation, children) {

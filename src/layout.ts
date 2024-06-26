@@ -32,7 +32,7 @@ ${indentation}    direction: '${component.direction}', ${isTitle(
         )}
 ${indentation}  })
 ${component.children
-  .map((child) => generateComponentCode(child, depth + 2))
+  .map((child) => generateComponentCode(child, depth + 1))
   .join("\n")}
   ${indentation}.build()
 ${indentation})`;

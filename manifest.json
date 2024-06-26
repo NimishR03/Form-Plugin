@@ -4,15 +4,11 @@
   "api": "1.0.0",
   "ui": "ui.html",
   "main": "dist/code.js",
-  "editorType": [
-    "figma"
-  ],
+  "editorType": ["figma"],
   "capabilities": [],
   "enableProposedApi": false,
   "documentAccess": "dynamic-page",
   "networkAccess": {
-    "allowedDomains": [
-      "none"
-    ]
+    "allowedDomains": ["none"]
   }
 }
